@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <BaseLayout>
     <NavBar />
     <RouterView /> 
-  </div>
+  </BaseLayout>
 </template>
 
 <script setup>
 import axios from 'axios';
 import { onMounted } from 'vue';
 import NavBar from './components/NavBar.vue';
+import BaseLayout from './layouts/BaseLayout.vue';
 
 async function fetchData() {
   try {
