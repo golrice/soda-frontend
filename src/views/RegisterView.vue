@@ -113,8 +113,8 @@
 
       <p class="mt-4 text-center text-sm text-gray-600">
         Already have an account?
-        <a href="#" class="text-blue-500 hover:underline">Login</a>
-      </p>
+        <router-link to="/Login" class="text-blue-500 hover:underline">Login</router-link>
+            </p>
     </div>
   </div>
 </template>

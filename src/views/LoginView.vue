@@ -44,9 +44,8 @@
         </button>
       </form>
 
-      <p class="mt-4 text-center text-sm text-gray-600">
-        Don't have an account?
-        <a href="#" class="text-blue-500 hover:underline">Sign Up</a>
+      <p class="mt-4 text-center text-sm text-gray-600">Don't have an account?
+      <router-link to="/Register" class="text-blue-500 hover:underline">Register</router-link>
       </p>
     </div>
   </div>
