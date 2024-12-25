@@ -7,7 +7,7 @@ import PostView from '@/views/PostView.vue'
 import PostEditBox from '@/components/PostEditBox.vue'
 import PostContentBox from '@/components/PostContentBox.vue'
 import PostsList from '@/components/PostsList.vue'
-
+import RegisterView from '@/views/RegisterView.vue'
 const routes = [
     { path: '/login', component: LoginView },
     { path: '/', component: HomeView, },
@@ -20,6 +20,7 @@ const routes = [
             { path: 'list', component: PostsList },
         ]
     },
+    { path: '/Register', component: RegisterView },
 ]
 
 const router = createRouter({
