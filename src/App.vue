@@ -14,6 +14,7 @@ const navItems = [
   { path: '/posts', name: '文章', hidden: false },
   { path: '/user-profile', name: '用户信息', hidden: false },
   { path: '/login', name: '登录', hidden: false },
+  { path: '/Register', name: '注册', hidden: false},
 ]
 </script>
 
