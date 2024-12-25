@@ -1,5 +1,7 @@
 <template>
+  <div class="h-screen flex flex-col gap-4">
     <PostDetailsCard v-for="file in files" :key="file.name" :file="file" @click="fetchPost(file.name)" />
+  </div>  
 </template>
 
 <script setup>
@@ -13,7 +15,6 @@ const files = ref([])
 
 async function fetchPosts() {
   try {
-    console.log("Fetching files");
     const response = await axios.get(`${API_BASE_URL}/get-posts`);
     files.value = response.data["posts"];
   } catch (error) {
@@ -26,7 +27,7 @@ async function fetchPost(name) {
     const response = await axios.get(`${API_BASE_URL}/get-post/${name}`);
     const postData = response.data;
 
-    router.push({ path: `/posts/${name}`, query: { name: postData['title'], content: postData['content'] } })
+    router.push({ path: `/posts/${name}`, query: { name: postData['title'], content: postData['content'], author: postData['author'] } })
   } catch (error) {
     alert("Error with fetching file");
   }

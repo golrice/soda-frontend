@@ -8,6 +8,8 @@ import PostEditBox from '@/components/PostEditBox.vue'
 import PostContentBox from '@/components/PostContentBox.vue'
 import PostsList from '@/components/PostsList.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import PalView from '@/views/PalView.vue'
+
 const routes = [
     { path: '/login', component: LoginView },
     { path: '/', component: HomeView, },
@@ -21,6 +23,7 @@ const routes = [
         ]
     },
     { path: '/Register', component: RegisterView },
+    { path: '/pal', component: PalView },
 ]
 
 const router = createRouter({
