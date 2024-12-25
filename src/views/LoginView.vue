@@ -46,7 +46,7 @@
 
       <p class="mt-4 text-center text-sm text-gray-600">
         Don't have an account?
-        <a href="#" class="text-blue-500 hover:underline">Sign Up</a>
+        <a @click="this.$router.push('/Register')" class="text-blue-500 hover:underline">Sign Up</a>
       </p>
     </div>
   </div>
