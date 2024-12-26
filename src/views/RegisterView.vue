@@ -113,8 +113,8 @@
 
       <p class="mt-4 text-center text-sm text-gray-600">
         Already have an account?
-        <router-link to="/Login" class="text-blue-500 hover:underline">Login</router-link>
-            </p>
+        <a @click="this.$router.push('/login')" class="text-blue-500 hover:underline cursor-pointer">Login</a>
+      </p>
     </div>
   </div>
 </template>
