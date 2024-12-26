@@ -8,7 +8,10 @@
       <div class="user-info">
         <h2>{{ user.name }}</h2>
         <!-- 关注按钮 -->
-        <button @click="followUser" class="follow-btn">{{ isFollowing ? '已关注' : '关注' }}</button>
+        <button v-if="notSameUser" @click="followUser" class="follow-btn">{{ isFollowing ?
+          '已关注'
+          : '关注'
+          }}</button>
         <div class="tags">
           <!-- 渲染标签 -->
           <a v-for="(tag, index) in user.tags" :key="index" :href="`#tag${index + 1}`" class="tag">{{ tag }}</a>
@@ -16,15 +19,18 @@
       </div>
       <!-- 底部按钮容器 -->
       <div class="bottom-buttons">
-        <button @click="editInfo" class="bottom-btn">修改信息</button>
-        <button @click="logout" class="bottom-btn">注销账户</button>
+        <button v-if="!notSameUser" @click="updateIntro" class="bottom-btn">修改信息</button>
+        <button v-if="!notSameUser" @click="logout" class="bottom-btn">注销账户</button>
       </div>
     </div>
 
     <!-- 右侧个人简介 -->
     <div class="intro-container">
       <div class="intro">
-        <p>{{ user.intro }}</p>
+        <input v-model="user.intro" class="w-full border-0" style="background-color: rgb(255, 255, 255, 0);" />
+      </div>
+      <div class="flex flex-col gap-4 mt-4 w-full">
+        <PostDetailsCard v-for="post in posts" :key="post.title" :file="post" />
       </div>
     </div>
   </div>
@@ -33,6 +39,15 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { API_BASE_URL } from '@/config';
+import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
+import PostDetailsCard from '@/components/PostDetailsCard.vue';
+import axios from 'axios';
+
+const props = defineProps({
+  visit_name: String,
+});
+
 // 用户数据
 const user = ref({
   avatar: '',
@@ -43,10 +58,13 @@ const user = ref({
 
 // 是否关注状态
 const isFollowing = ref(false);
-const username = "wym"
+const username = ref('')
+const notSameUser = ref(false);
+const posts = ref([]);
+const router = useRouter();
 
 // 获取用户信息（从后端获取）
-const getUserInfo = async (username) => {
+async function getUserInfo(username) {
   try {
     const response = await fetch(`${API_BASE_URL}/get-profile?username=${username}`);
     if (response.ok) {
@@ -55,19 +73,59 @@ const getUserInfo = async (username) => {
     } else {
       console.error("Failed to fetch user info:", response.status);
     }
+    const response2 = await fetch(`${API_BASE_URL}/get-posts/${username}`);
+    if (response2.ok) {
+      const data2 = await response2.json();
+      posts.value = data2.posts;
+    } else {
+      console.error("Failed to fetch user files:", response2.status);
+    }
   } catch (error) {
     console.error("Failed to fetch user info:", error);
   }
-};
+}
 
 // 关注按钮点击事件
 const followUser = () => {
   isFollowing.value = !isFollowing.value;
 };
 
+async function updateIntro() {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/update-profile`, {
+      username: user.value['name'],
+      intro: user.value['intro'],
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (response.status === 200) {
+      alert('update profile success');
+    } else {
+      console.error('Failed to update profile:', response.status);
+    }
+  } catch (error) {
+    console.error('Failed to update profile:', error);
+  }
+}
+
+async function logout() {
+  localStorage.removeItem('username');
+  localStorage.removeItem('token');
+  router.push('/');
+}
+
 // 页面加载时获取用户信息
 onMounted(() => {
-  getUserInfo(username);  // 假设默认查询用户名 'wym'
+  username.value = localStorage.getItem('username') || '';
+  user.value['name'] = props.visit_name || localStorage.getItem('username') || '';
+  if (user.value['name'] === '') {
+    alert('please login first');
+    router.push('/');
+  }
+  getUserInfo(user.value['name']);
+  notSameUser.value = username.value !== user.value['name'];
 });
 </script>
 
@@ -190,8 +248,10 @@ onMounted(() => {
 
 /* 右侧内容区域 */
 .intro-container {
-  margin-left: 240px; /* 左侧导航栏宽度 + 间距 */
-  flex: 1;  /* 让右侧内容区域填满剩余空间 */
+  margin-left: 240px;
+  /* 左侧导航栏宽度 + 间距 */
+  flex: 1;
+  /* 让右侧内容区域填满剩余空间 */
   padding: 20px;
   overflow-y: auto;
   max-height: 100vh;
@@ -199,18 +259,15 @@ onMounted(() => {
 
 /* 白色背景半透明容器 */
 .intro {
-  background-color: rgba(255, 255, 255, 0.5); /* 白色背景，50%透明 */
+  background-color: rgba(255, 255, 255, 0.5);
+  /* 白色背景，50%透明 */
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 可选的阴影效果 */
-  width:auto; /* 使宽度填满父容器 */
-  box-sizing: border-box; /* 确保 padding 不影响容器宽度 */
-}
-
-/* 个人简介文本 */
-.intro p {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* 可选的阴影效果 */
+  width: auto;
+  /* 使宽度填满父容器 */
+  box-sizing: border-box;
+  /* 确保 padding 不影响容器宽度 */
 }
 </style>

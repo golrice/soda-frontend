@@ -1,4 +1,5 @@
 <template>
+
   <div class="flex items-center justify-center h-screen">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
@@ -8,37 +9,25 @@
         <!-- Username -->
         <div class="mb-4">
           <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-          <input
-            v-model="LoginForm.username"
-            id="username"
-            type="text"
+          <input v-model="username" id="username" type="text"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your username"
-            required
-          />
+            placeholder="Enter your username" required />
         </div>
 
         <!-- Password -->
         <div class="mb-6">
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            v-model="LoginForm.password"
-            id="password"
-            type="password"
+          <input v-model="password" id="password" type="password"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your password"
-            required
-          />
+            placeholder="Enter your password" required />
         </div>
 
         <!-- Error message -->
         <p v-if="errorMessage" class="text-red-500 text-sm mb-4">{{ errorMessage }}</p>
 
         <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+        <button type="submit"
+          class="w-full py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
           Login
         </button>
       </form>
@@ -51,74 +40,87 @@
   </div>
 </template>
 
-<script>
+<script setup>
+//import { RSAKey } from 'jsrsasign';
 import axios from 'axios';
 import SHA256 from "crypto-js/sha256";
 import { enc } from "crypto-js";
 import { API_BASE_URL } from '@/config';
-//import Cookies from 'js-cookie';  // 导入 js-cookie 库
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
-  data() {
-    return {
-      LoginForm: {
-        username: '',
-        password: '',
-      },
-      errorMessage: '',
-      isLoading: false, 
-    };
-  },
-  methods: {
-    encryptData(password) {
-      const hash = SHA256(password).toString(enc.Hex);
-      return hash;
-    },
-    async handleLogin() {
-      // Basic validation
-      if (this.LoginForm.username === '' || this.LoginForm.password === '') {
-        this.errorMessage = 'Both fields are required.';
-      } else {
-        this.errorMessage = '';
-        this.isLoading = true;
-        const encryptedPassword = this.encryptData(this.LoginForm.password);
-        try {
-          const response = await axios.post(`${API_BASE_URL}/login`, {
-            username: this.LoginForm.username,
-            sha256_hash: encryptedPassword
-          });
+const router = useRouter();
 
-          // Handle different server responses
-          if (response.data.message === 'Password is correct') {
-            // Store token in cookie with expiration time (1 hour)
-            //Cookies.set('auth_token', response.data.token, { expires: 1, secure: true, sameSite: 'Strict' });
+const username = ref('');
+const password = ref('');
+//publicKey: '',
+let errorMessage = ref('');
+const isLoading = ref(false);
 
-            alert('Login Successful');
-            // Redirect to dashboard or other pages
-            this.$router.push('/user-profile');  // Replace with your actual route
-          } 
-          else if(response.data.message === 'User does not exist.') {
-            this.errorMessage = 'User does not exist.';
-          }
-          else if(response.data.message === 'Incorrect username or password.') {
-            this.errorMessage = 'Incorrect username or password.';
-          }
-        } catch (error) {
-           // Handle network errors or other issues
-           if (error.response) {
-            this.errorMessage = error.response.data.message || 'An error occurred on the server.';
-          } else if (error.request) {
-            this.errorMessage = 'No response from the server. Please check your connection.';
-          } else {
-            this.errorMessage = 'An error occurred while setting up the request.';
-          }
-        } finally {
-          this.isLoading = false; 
-        }
+function encryptData(password) {
+  const hash = SHA256(password).toString(enc.Hex);
+  return hash;
+}
+
+async function handleLogin() {
+  // Basic validation
+  if (username.value === '' || password.value === '') {
+    errorMessage = 'Both fields are required.';
+  } else {
+    errorMessage.value = '';
+    isLoading.value = true;
+    const encryptedPassword = encryptData(password.value);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
+        username: username.value,
+        sha256_hash: encryptedPassword
+      });
+      //console.error(response.error);
+      if (response.data.message === 'Password is correct') {
+        alert('Login Successful');
+        // Handle successful login, e.g., redirect to dashboard
       }
-    },
-  },
-};
+      else if (response.data.message === 'User does not exist.') {
+        errorMessage.value = 'User does not exist.';
+      }
+
+      else if (response.data.message === 'Incorrect username or password.') {
+        errorMessage.value = 'Incorrect username or password.';
+      }
+
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', username.value);
+
+      router.push({ path: '/user-profile' });
+    } catch (error) {
+      // Handle network errors or other issues
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Response error:', error.response);
+        errorMessage.value = error.response.data.message || 'An error occurred on the server.';
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Request error:', error.request);
+        errorMessage.value = 'No response from the server. Please check your connection.';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error', error.message);
+        errorMessage.value = 'An error occurred while setting up the request.';
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}
+
+onMounted(() => {
+  if (localStorage.getItem('token')) {
+    alert('You are already logged in.');
+    router.push({ path: '/user-profile' });
+  }
+})
+
 </script>
 
 <style scoped>

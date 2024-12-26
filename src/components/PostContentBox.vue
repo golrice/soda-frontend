@@ -7,10 +7,10 @@
             </div>
 
             <div class="mb-4">
-                <v-md-preview class="border border-gray-300 p-2 rounded-md bg-gray-50" :text="content" ></v-md-preview>
+                <v-md-preview class="border border-gray-300 p-2 rounded-md bg-gray-50" :text="content"></v-md-preview>
             </div>
 
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center" v-if="updateRight">
                 <div class="flex justify-start mt-4">
                     <button @click="goUpdate()"
                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
@@ -35,6 +35,8 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
+const username = ref('');
+
 const router = useRouter();
 const route = useRoute();
 
@@ -42,8 +44,10 @@ const title = ref('')
 const content = ref('')
 const author = ref('')
 
+const updateRight = ref(false)
+
 async function goUpdate() {
-    router.push({ path: '/posts/create', query: { name: title.value, content: content.value }})
+    router.push({ path: '/posts/create', query: { title: title.value, content: content.value, author: author.value } })
 }
 
 async function goDelete() {
@@ -57,9 +61,11 @@ async function goDelete() {
 
 onMounted(() => {
     const postData = route.query
-    title.value = postData.name.split('.')[0] || '';
+    title.value = postData.title || '';
     content.value = postData.content || '';
     author.value = postData.author || '';
+    username.value = localStorage.getItem('username') || '';
+    updateRight.value = author.value != '' && username.value === author.value;
 })
 
 </script>
