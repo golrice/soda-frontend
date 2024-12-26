@@ -1,5 +1,4 @@
 <template>
-  
   <div class="flex items-center justify-center h-screen">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
@@ -53,20 +52,19 @@
 </template>
 
 <script>
-//import { RSAKey } from 'jsrsasign';
 import axios from 'axios';
 import SHA256 from "crypto-js/sha256";
 import { enc } from "crypto-js";
 import { API_BASE_URL } from '@/config';
+//import Cookies from 'js-cookie';  // 导入 js-cookie 库
+
 export default {
   data() {
     return {
       LoginForm: {
         username: '',
         password: '',
-        //OpenKey: '',
       },
-      //publicKey: '',
       errorMessage: '',
       isLoading: false, 
     };
@@ -89,32 +87,29 @@ export default {
             username: this.LoginForm.username,
             sha256_hash: encryptedPassword
           });
-          //console.error(response.error);
+
+          // Handle different server responses
           if (response.data.message === 'Password is correct') {
+            // Store token in cookie with expiration time (1 hour)
+            //Cookies.set('auth_token', response.data.token, { expires: 1, secure: true, sameSite: 'Strict' });
+
             alert('Login Successful');
-            // Handle successful login, e.g., redirect to dashboard
+            // Redirect to dashboard or other pages
+            this.$router.push('/user-profile');  // Replace with your actual route
           } 
-          else if(response.data.message === 'User does not exist.'){
+          else if(response.data.message === 'User does not exist.') {
             this.errorMessage = 'User does not exist.';
           }
-
-          else if(response.data.message === 'Incorrect username or password.'){
+          else if(response.data.message === 'Incorrect username or password.') {
             this.errorMessage = 'Incorrect username or password.';
           }
         } catch (error) {
            // Handle network errors or other issues
            if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('Response error:', error.response);
             this.errorMessage = error.response.data.message || 'An error occurred on the server.';
           } else if (error.request) {
-            // The request was made but no response was received
-            console.error('Request error:', error.request);
             this.errorMessage = 'No response from the server. Please check your connection.';
           } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error', error.message);
             this.errorMessage = 'An error occurred while setting up the request.';
           }
         } finally {
