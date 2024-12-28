@@ -5,8 +5,7 @@
                 class="border border-gray-300 rounded-full py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div class="rounded-lg shadow-md p-6 w-full max-w-5xl min-h-screen">
-            <v-md-editor v-model="content" height="700px" @save="save" :disabled-menus="[]"
-                @upload-image="handleUploadImage"></v-md-editor>
+            <v-md-editor v-model="content" height="700px" @save="save"></v-md-editor>
         </div>
     </div>
 </template>
@@ -39,15 +38,6 @@ async function save() {
     } catch (error) {
         alert("Error with fetching file, error message: " + error.message);
     }
-}
-
-async function handleUploadImage(_event, insertImage, files) {
-    console.log(files);
-    // insertImage({
-    //     url:
-    //         "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1269952892,3525182336&fm=26&gp=0.jpg",
-    //     desc: '七龙珠',
-    // });
 }
 
 onMounted(() => {
