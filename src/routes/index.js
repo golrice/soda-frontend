@@ -9,6 +9,7 @@ import PostContentBox from '@/components/PostContentBox.vue'
 import PostsList from '@/components/PostsList.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import PalView from '@/views/PalView.vue'
+import ChatRoom from '@/components/ChatRoom.vue'
 
 const routes = [
     { path: '/login', component: LoginView },
@@ -24,6 +25,7 @@ const routes = [
     },
     { path: '/Register', component: RegisterView },
     { path: '/pal', component: PalView },
+    { path: '/chatroom/:current_name/:visit_name', name: 'chatroom', component: ChatRoom },
 ]
 
 const router = createRouter({

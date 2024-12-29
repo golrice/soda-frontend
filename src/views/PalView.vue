@@ -5,7 +5,7 @@
         class="border border-gray-300 rounded-full py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <ul v-if="results.length" class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg shadow-lg">
         <li v-for="person in results" :key="person.id" class="py-2 px-4 rounded-lg cursor-pointer hover:bg-gray-100"
-          @click="goToPersonDetail()">
+          @click="goToPersonDetail(person)">
           {{ person }}
         </li>
       </ul>
@@ -36,9 +36,9 @@ const onInput = async () => {
   }
 };
 
-const goToPersonDetail = () => {
-  router.push({ path: '/user-profile' });
-};
+async function goToPersonDetail(person) {
+  router.push({ path: '/user-profile', query: { visit_name: person } });
+}
 
 </script>
 

@@ -21,6 +21,7 @@
       <div class="bottom-buttons">
         <button v-if="!notSameUser" @click="updateIntro" class="bottom-btn">修改信息</button>
         <button v-if="!notSameUser" @click="logout" class="bottom-btn">注销账户</button>
+        <button v-if="notSameUser" @click="chat" class="bottom-btn">聊天</button>
       </div>
     </div>
 
@@ -39,14 +40,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { API_BASE_URL } from '@/config';
-import { defineProps } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import PostDetailsCard from '@/components/PostDetailsCard.vue';
 import axios from 'axios';
-
-const props = defineProps({
-  visit_name: String,
-});
 
 // 用户数据
 const user = ref({
@@ -62,6 +58,7 @@ const username = ref('')
 const notSameUser = ref(false);
 const posts = ref([]);
 const router = useRouter();
+const route = useRoute();
 
 // 获取用户信息（从后端获取）
 async function getUserInfo(username) {
@@ -116,10 +113,24 @@ async function logout() {
   router.push('/');
 }
 
+async function chat() {
+  // go to a chatroom including the current user and the visit user
+  const visit_name = user.value['name'];
+  const current_name = username.value;
+  router.push({
+    name: 'chatroom',
+    params: {
+      current_name,
+      visit_name,
+    },
+  });
+}
+
 // 页面加载时获取用户信息
 onMounted(() => {
+  const postData = route.query;
   username.value = localStorage.getItem('username') || '';
-  user.value['name'] = props.visit_name || localStorage.getItem('username') || '';
+  user.value['name'] = postData.visit_name || localStorage.getItem('username') || '';
   if (user.value['name'] === '') {
     alert('please login first');
     router.push('/');
