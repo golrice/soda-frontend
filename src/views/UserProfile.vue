@@ -2,9 +2,6 @@
   <div class="container">
     <!-- 左侧固定区域 -->
     <div class="left-section">
-      <div class="avatar">
-        <img :src="user.avatar" alt="User Avatar" />
-      </div>
       <div class="user-info h2">
         <h2>{{ user.name }}</h2>
         <!-- 关注按钮 -->
@@ -29,41 +26,25 @@
     <!-- 右侧个人简介 -->
     <div class="intro-container">
       <div class="intro">
-        <input 
-          v-model="user.intro" 
-          class="w-full border-0" 
-          :readonly="!isEditing || notSameUser" 
-          :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'}" 
-        />
+        <input v-model="user.intro" class="w-full border-0" :readonly="!isEditing || notSameUser"
+          :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)' }" />
       </div>
       <!-- 用户额外信息：邮箱，名字和加入时间 -->
       <div v-if="!notSameUser" class="user-additional-info">
         <div class="info-item">
           <span class="info-name">邮箱:</span>
-          <input 
-          v-model="user.email" 
-          class="info-content" 
-          :readonly="!isEditing || notSameUser" 
-          :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'}" 
-        />
+          <input v-model="user.email" class="info-content" :readonly="!isEditing || notSameUser"
+            :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)' }" />
         </div>
         <div class="info-item">
           <span class="info-name">姓:</span>
-          <input 
-          v-model="user.firstname"
-          class="info-content" 
-          :readonly="!isEditing || notSameUser" 
-          :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'}" 
-        />
-      </div>
+          <input v-model="user.firstname" class="info-content" :readonly="!isEditing || notSameUser"
+            :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)' }" />
+        </div>
         <div class="info-item">
           <span class="info-name">名:</span>
-          <input 
-          v-model="user.lastname"
-          class="info-content" 
-          :readonly="!isEditing || notSameUser" 
-          :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'}" 
-        />
+          <input v-model="user.lastname" class="info-content" :readonly="!isEditing || notSameUser"
+            :style="{ pointerEvents: isEditing ? 'auto' : 'none', backgroundColor: isEditing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)' }" />
         </div>
         <div class="info-item">
           <span class="info-name">加入时间:</span>
@@ -84,30 +65,30 @@
         <PostDetailsCard v-for="post in posts" :key="post.title" :file="post" />
       </div>
       <div class="follow-container">
-        <!-- 左侧关注者列表 -->
+        <!-- 左侧粉丝列表 -->
         <div class="follow-list">
           <h3 @click="toggleFollowers">
-            关注者 ({{ followers.length }})
+            粉丝 ({{ followers.length }})
             <span v-if="showFollowers">▲</span>
             <span v-else>▼</span>
           </h3>
           <ul v-if="showFollowers">
             <li v-for="(follower, index) in followers" :key="index" class="follow-item">
-              <span>{{ follower.username }}</span>
+              <span>{{ follower }}</span>
             </li>
           </ul>
         </div>
 
-        <!-- 右侧粉丝列表 -->
+        <!-- 右侧关注列表 -->
         <div class="follower-list">
           <h3 @click="toggleFollowing">
-            粉丝 ({{ following.length }})
+            关注列表 ({{ following.length }})
             <span v-if="showFollowing">▲</span>
             <span v-else>▼</span>
           </h3>
           <ul v-if="showFollowing">
             <li v-for="(follow, index) in following" :key="index" class="follow-item">
-              <span>{{ follow.username }}</span>
+              <span>{{ follow }}</span>
             </li>
           </ul>
         </div>
@@ -125,11 +106,13 @@ import axios from 'axios';
 
 // 用户数据
 const user = ref({
-  avatar: '',
-  name: '',
+  firstname: '',
+  lastname: '',
   intro: '',
   tags: [],
-  oldname: [],
+  name: '',
+  fullname: '',
+  followed: false,
 });
 
 // 是否关注状态
@@ -214,9 +197,9 @@ const followUser = async () => {
     });
 
     if (response.status === 200) {
-      if(followAction){
-        console.log("取消关注${targetUser}成功");
-      }else{
+      if (followAction) {
+        console.log(`取消关注${targetUser}成功`);
+      } else {
         console.log(`关注 ${targetUser} 成功`);
       }
       // 可以根据后端返回的数据进一步处理
@@ -239,7 +222,7 @@ async function updateIntro() {
       email: user.value['email'],
       firstname: user.value['firstname'],
       lastname: user.value['lastname'],
-      oldname:user.value['oldname'],
+      oldname: user.value['oldname'],
     }, {
       headers: {
         'Content-Type': 'application/json'
@@ -336,7 +319,8 @@ const toggleEditing = () => {
   color: #333;
   text-align: center;
   margin: 0;
-  padding-top: 20px; /* 确保用户名不被覆盖 */
+  padding-top: 20px;
+  /* 确保用户名不被覆盖 */
 }
 
 /* 关注按钮 */
@@ -444,17 +428,23 @@ const toggleEditing = () => {
 
 /* 用户额外信息容器 */
 .user-additional-info {
-  margin-top: 50px; /* 距离个人简介50px */
-  background-color: #f4f7fc;  /* 背景颜色 */
-  padding: 20px;  /* 内边距 */
-  border-radius: 10px;  /* 圆角效果 */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  margin-top: 50px;
+  /* 距离个人简介50px */
+  background-color: #f4f7fc;
+  /* 背景颜色 */
+  padding: 20px;
+  /* 内边距 */
+  border-radius: 10px;
+  /* 圆角效果 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* 阴影效果 */
 }
 
 /* 信息项容器 */
 .info-item {
   display: flex;
-  justify-content: space-between; /* 使名称和内容分开对齐 */
+  justify-content: space-between;
+  /* 使名称和内容分开对齐 */
   margin-bottom: 20px;
 }
 
@@ -468,13 +458,18 @@ const toggleEditing = () => {
 .info-content {
   color: #333;
   text-align: right;
-  width: 60%; /* 控制信息内容区域的宽度 */
+  width: 60%;
+  /* 控制信息内容区域的宽度 */
 }
 
 .follow-item {
-  padding: 8px 16px;  /* 内边距，使列表项更宽松 */
-  border-bottom: 1px solid #ddd;  /* 给每个列表项加一条底边 */
-  cursor: pointer;  /* 鼠标悬停时显示为可点击 */
-  transition: background-color 0.3s ease;  /* 平滑的背景色过渡 */
+  padding: 8px 16px;
+  /* 内边距，使列表项更宽松 */
+  border-bottom: 1px solid #ddd;
+  /* 给每个列表项加一条底边 */
+  cursor: pointer;
+  /* 鼠标悬停时显示为可点击 */
+  transition: background-color 0.3s ease;
+  /* 平滑的背景色过渡 */
 }
 </style>
