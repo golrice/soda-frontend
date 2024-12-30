@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex flex-col gap-4">
+  <div class="h-full flex flex-col gap-4">
     <PostDetailsCard v-for="file in files" :key="file.title" :file="file" @click="fetchPost(file.title)" />
   </div>
 </template>
