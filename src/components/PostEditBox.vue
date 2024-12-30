@@ -22,6 +22,8 @@ const route = useRoute();
 const title = ref('');
 const content = ref('');
 const username = ref('');
+const needUpdate = ref(false);
+const prv_title = ref('');
 
 async function save() {
     try {
@@ -29,6 +31,7 @@ async function save() {
             title: title.value,
             content: content.value,
             username: username.value,
+            prv_title: prv_title.value,
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -49,6 +52,11 @@ onMounted(() => {
     title.value = postData.title || '';
     content.value = postData.content || '';
     username.value = localStorage.getItem('username');
+    needUpdate.value = postData.needUpdate || false;
+
+    if (needUpdate.value) {
+        prv_title.value = postData.title;
+    }
 })
 
 </script>
