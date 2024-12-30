@@ -47,12 +47,12 @@ const author = ref('')
 const updateRight = ref(false)
 
 async function goUpdate() {
-    router.push({ path: '/posts/create', query: { title: title.value, content: content.value, author: author.value } })
+    router.push({ path: '/posts/create', query: { title: title.value, content: content.value, author: author.value, needUpdate: true } })
 }
 
 async function goDelete() {
     try {
-        await axios.delete(`${API_BASE_URL}/delete-post/${title.value}`);
+        await axios.delete(`${API_BASE_URL}/delete-post/${title.value}?author=${author.value}`);
         router.push({ path: '/posts' });
     } catch (error) {
         alert("Error deleting post");
